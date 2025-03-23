@@ -1,29 +1,29 @@
+from flask import Flask, render_template, request, jsonify
 from chatbot import ChatBot
-from flask import Flask, jsonify, request
 import os
 
 app = Flask(__name__)
 
-# Debug prints for startup
-print("App starting...")
-print("AZURE_OPENAI_KEY:", os.getenv("AZURE_OPENAI_KEY"))
-print("AZURE_OPENAI_ENDPOINT:", os.getenv("AZURE_OPENAI_ENDPOINT"))
-
 api_key = os.getenv("AZURE_OPENAI_KEY")
 api_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
-bot = ChatBot(api_key, api_endpoint, "you are a helpful assistant.")
-bot.initialize()
 
-@app.route('/', methods=['POST'])
-def send_request():
-    new_query = request.get_json()['query']
-    if new_query != '':
-        answer = bot.request(new_query)
-    else:
-        answer = "Sorry but your query is blank."
-    return jsonify({"Answer": answer, "Chat History Length": len(bot.chat_history)})
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/chat', methods=['POST'])
+def chat():
+    user_input = request.json.get('message')
+    if not user_input:
+        return jsonify({'response': "Please enter a valid message."})
+
+    # Create a temporary ChatBot instance for each request (stateless)
+    bot = ChatBot(api_key, api_endpoint, "You are a helpful assistant.")
+    bot.initialize()
+    response = bot.request(user_input)
+
+    return jsonify({'response': response})
 
 if __name__ == "__main__":
-    # Use the PORT environment variable if it exists, otherwise default to 5000
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
