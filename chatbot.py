@@ -1,35 +1,39 @@
 import os
 import dotenv
-import google.generativeai as genai
+from google import genai
+from google.genai import types
+from PIL import Image
 
-# Load environment variables from .env file
 dotenv.load_dotenv()
 
 class ChatBot:
     def __init__(self, api_key, system_prompt="You are a generic chatbot and helpful like Wall-E"):
-        # Store the API key and prompt
         self.api_key = api_key
         self.system_prompt = system_prompt
-        self.chat = None
+        self.client = None  # We'll use this client for all requests
 
     def initialize(self):
-        # Configure the Gemini API
-        genai.configure(api_key=self.api_key)
+        # Instead of calling genai.configure(), we simply create the client directly.
+        self.client = genai.Client(api_key=self.api_key)
+        # (Optional) You could also pre-load a conversation or system prompt via the client if desired.
 
-        # Start a new chat session with the system prompt
-        self.chat = genai.GenerativeModel("gemini-2.0-flash").start_chat(
-            history=[
-                {"role": "user", "parts": [self.system_prompt]},
-                {"role": "model", "parts": ["Okay, I'm ready to help!"]}
-            ]
+    def request(self, text_prompt, image_pil=None):
+        """
+        Sends a request to Gemini.
+        If image_pil is None, sends text-only.
+        If image_pil is provided (a PIL.Image), sends text+image.
+        """
+        if not self.client:
+            raise Exception("ChatBot not initialized. Call initialize() first.")
+
+        # Build the contents list: always start with the text prompt.
+        contents = [text_prompt]
+        if image_pil is not None:
+            contents.append(image_pil)
+
+        # Call the model. Adjust the model name if needed (e.g., "gemini-2.0-flash" or "gemini-pro-vision")
+        response = self.client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=contents
         )
-
-    def request(self, new_query):
-        if not self.chat:
-            raise Exception("Chat not initialized. Call initialize() first.")
-
-        # Send the user query to Gemini and get the response
-        response = self.chat.send_message(new_query)
-
-        # Return the text response from the model
         return response.text

@@ -3,41 +3,72 @@
 <head>
   <meta charset="UTF-8" />
   <title>Pastel Chat + Timestamp</title>
-  <!-- Google Fonts (optional) -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link 
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap"
     rel="stylesheet"
   />
 
-  <!-- Link to your style.css in static/css/ -->
+  <!-- Link to your style.css -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  
-  <!-- (Optional) Marked.js from CDN (for bold/italics in AI text) -->
+
+  <!-- Optional: Marked.js for bold/italics in AI text -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
   <div class="container">
-    <!-- Sparkle & Heading -->
+    <!-- Sparkle & Heading (unchanged) -->
     <div class="hero">
       <div class="icon">✦</div>
       <h1>Ask our AI anything</h1>
     </div>
 
-    <!-- Chat container -->
+    <!-- Chat container (unchanged) -->
     <div id="chat-container"></div>
-    <!--<div id="loading">Waiting for response...</div>-->
+    <div id="loading" style="display:none;">Waiting for response...</div>
+  </div>
+  <!-- Modal for zooming images -->
+  <div id="image-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <span id="close-modal" class="close-btn">&times;</span>
+      <img id="modal-img" alt="Full image preview" />
+    </div>
   </div>
 
+  
+
+  <!-- Footer with chat form (the main difference is the attach button + hidden file input) -->
   <!-- Footer with chat form -->
   <footer>
     <form id="chat-form">
-      <textarea id="message" rows="1" placeholder="Type your message..."></textarea>
-      <button type="submit">Send</button>
+      <!-- Attach button -->
+      <button type="button" id="attachBtn" title="Attach an Image">🖼️</button>
+      <!-- Hidden file input -->
+      <input type="file" id="fileInput" accept="image/*" style="display:none;" />
+  
+      <!-- The small preview container in-line with the rest -->
+      <div id="preview-container" class="hidden">
+        <img id="preview-img" alt="Preview" />
+        <span id="remove-upload" class="remove-upload-btn">&times;</span>
+      </div>
+  
+      <!-- Text input and send button -->
+      <textarea id="message" placeholder="Type your message..."></textarea>
+      <button type="submit" id="sendBtn">↑</button>
     </form>
   </footer>
+  
+  <!-- Modal for image zoom -->
+  <div id="image-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span id="close-modal" class="close-btn">&times;</span>
+      <img id="modal-img" alt="Full image preview" />
+    </div>
+  </div>
+  
 
-  <!-- Link to your chat.js in static/js/ -->
+  <!-- Your main chat logic script -->
   <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
 </body>
 </html>
