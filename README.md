@@ -29,9 +29,16 @@ CloudBot is a **web-based chatbot** powered by **Google's Gemini API** (`google-
 
 ### Overview
 
-- Flask backend (`app.py`) serving chat UI and handling API calls.
-- Integration with Gemini via `chatbot.py`.
-- Frontend supports interactive text and image inputs.
+- CloudBot is a web-based chatbot that integrates with Google’s Gemini API (google-generativeai) to handle both text and image queries. 
+- This project was created to demonstrate:
+    - How to build a Flask-based chatbot that calls an advanced AI model (Gemini).
+    - How to containerize an app with Docker.
+    - How to deploy that container to Microsoft Azure, making it publicly accessible.
+- You can see a live instance running here (if still active):
+```bash
+https://cloudbotweb.azurewebsites.net
+```
+
 
 ### Features
 
