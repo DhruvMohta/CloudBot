@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Pastel Chat + Timestamp</title>
+  <title>CloudBot</title>
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link 
@@ -17,18 +17,20 @@
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
+  <!-- Container holding everything that scrolls -->
   <div class="container">
-    <!-- Sparkle & Heading (unchanged) -->
+    <!-- Sparkle & Heading -->
     <div class="hero">
       <div class="icon">✦</div>
       <h1>Ask our AI anything</h1>
     </div>
 
-    <!-- Chat container (unchanged) -->
+    <!-- Chat messages -->
     <div id="chat-container"></div>
     <div id="loading" style="display:none;">Waiting for response...</div>
   </div>
-  <!-- Modal for zooming images -->
+
+  <!-- Image modal -->
   <div id="image-modal" class="modal" style="display: none;">
     <div class="modal-content">
       <span id="close-modal" class="close-btn">&times;</span>
@@ -36,39 +38,21 @@
     </div>
   </div>
 
-  
-
-  <!-- Footer with chat form (the main difference is the attach button + hidden file input) -->
-  <!-- Footer with chat form -->
+  <!-- Footer with input -->
   <footer>
     <form id="chat-form">
-      <!-- Attach button -->
       <button type="button" id="attachBtn" title="Attach an Image">🖼️</button>
-      <!-- Hidden file input -->
       <input type="file" id="fileInput" accept="image/*" style="display:none;" />
-  
-      <!-- The small preview container in-line with the rest -->
       <div id="preview-container" class="hidden">
         <img id="preview-img" alt="Preview" />
         <span id="remove-upload" class="remove-upload-btn">&times;</span>
       </div>
-  
-      <!-- Text input and send button -->
       <textarea id="message" placeholder="Type your message..."></textarea>
       <button type="submit" id="sendBtn">↑</button>
     </form>
   </footer>
-  
-  <!-- Modal for image zoom -->
-  <div id="image-modal" class="modal" style="display:none;">
-    <div class="modal-content">
-      <span id="close-modal" class="close-btn">&times;</span>
-      <img id="modal-img" alt="Full image preview" />
-    </div>
-  </div>
-  
 
-  <!-- Your main chat logic script -->
   <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
 </body>
+
 </html>

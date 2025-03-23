@@ -4,6 +4,8 @@ import os
 import base64
 from io import BytesIO
 from PIL import Image
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 
