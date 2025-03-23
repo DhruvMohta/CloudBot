@@ -1,35 +1,35 @@
 import os
-from openai import AzureOpenAI
 import dotenv
+import google.generativeai as genai
 
 # Load environment variables from .env file
 dotenv.load_dotenv()
 
-class ChatBot():
-    def __init__(self, api_key, azure_endpoint, system_prompt):
-        # OPENAI authentication
-        self.OPENAI_API_KEY = api_key
-        self.AZURE_OPENAI_ENDPOINT = azure_endpoint
-
-        # model parameter
+class ChatBot:
+    def __init__(self, api_key, system_prompt="You are a generic chatbot and helpful like Wall-E"):
+        # Store the API key and prompt
+        self.api_key = api_key
         self.system_prompt = system_prompt
+        self.chat = None
 
     def initialize(self):
-        self.client = AzureOpenAI(
-            azure_endpoint=self.AZURE_OPENAI_ENDPOINT,
-            api_key=self.OPENAI_API_KEY,
-            api_version="2025-01-01-preview"
+        # Configure the Gemini API
+        genai.configure(api_key=self.api_key)
+
+        # Start a new chat session with the system prompt
+        self.chat = genai.GenerativeModel("gemini-2.0-flash").start_chat(
+            history=[
+                {"role": "user", "parts": [self.system_prompt]},
+                {"role": "model", "parts": ["Okay, I'm ready to help!"]}
+            ]
         )
 
     def request(self, new_query):
-        messages = [{"role": "system", "content": self.system_prompt}]
+        if not self.chat:
+            raise Exception("Chat not initialized. Call initialize() first.")
 
-        if new_query:
-            messages.append({"role": "user", "content": new_query})
+        # Send the user query to Gemini and get the response
+        response = self.chat.send_message(new_query)
 
-        response = self.client.chat.completions.create(
-            model="testprojectdhruv1",
-            messages=messages
-        )
-
-        return response.choices[0].message.content
+        # Return the text response from the model
+        return response.text

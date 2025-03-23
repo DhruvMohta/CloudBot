@@ -1,28 +1,29 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, jsonify, render_template, request
 from chatbot import ChatBot
 import os
 
 app = Flask(__name__)
 
-api_key = os.getenv("AZURE_OPENAI_KEY")
-api_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
+# Initialize chatbot with Gemini API key from environment variable
+api_key = os.getenv("GEMINI_API_KEY")
+bot = ChatBot(api_key)
+bot.initialize()
 
-@app.route('/')
+@app.route("/", methods=["GET"])
 def index():
-    return render_template('index.html')
+    return render_template("index.html")  # Serves the chatbot UI
 
-@app.route('/chat', methods=['POST'])
-def chat():
-    user_input = request.json.get('message')
-    if not user_input:
-        return jsonify({'response': "Please enter a valid message."})
+@app.route("/", methods=["POST"])
+def send_request():
+    try:
+        new_query = request.get_json().get("query", "").strip()
+        if not new_query:
+            return jsonify({"Answer": "Please enter a valid question."}), 400
 
-    # Create a temporary ChatBot instance for each request (stateless)
-    bot = ChatBot(api_key, api_endpoint, "You are a helpful assistant.")
-    bot.initialize()
-    response = bot.request(user_input)
-
-    return jsonify({'response': response})
+        answer = bot.request(new_query)
+        return jsonify({"Answer": answer})
+    except Exception as e:
+        return jsonify({"Answer": f"Error: {str(e)}"}), 500
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
