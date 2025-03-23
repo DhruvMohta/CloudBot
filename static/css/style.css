@@ -1,0 +1,294 @@
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(180deg, #fff 0%, #f7dafc 50%, #fbcdf2 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-attachment: fixed; /* stops the gradient from moving */
+    min-height: 100vh;
+    margin: 0;
+  }
+  
+  /* Container for everything except the fixed footer */
+  .container {
+    width: 100%;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+    align-items: center;
+    position: relative;
+  }
+  
+  /* Hero section for the sparkle icon + heading */
+  .hero {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  .hero .icon {
+    font-size: 2rem;
+    display: block;
+    color: #666;
+    margin-bottom: 0.5rem;
+  }
+  .hero h1 {
+    font-size: 1.8rem;
+    font-weight: 500;
+    color: #333;
+  }
+  
+  /* Chat container */
+  #chat-container {
+    text-align: center;
+    width: 100%;
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-bottom: 5rem; /* space so last bubble not hidden behind footer */
+    position: relative;
+  }
+  
+  /* Chat bubbles */
+  .message {
+    position: relative; /* for absolute timestamp */
+    max-width: 70%;
+    padding: 1rem;
+    border-radius: 1rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    word-wrap: break-word;
+    line-height: 1.4;
+    font-size: 0.95rem;
+    text-align: center;
+  }
+  /* The text itself, ensuring some right-side margin for timestamp */
+  .message-text {
+    margin-right: 1.75rem;
+    white-space: pre-wrap;
+  }
+  /* Timestamps absolutely in bottom-right */
+  .timestamp {
+    position: absolute;
+    right: 0.5rem;
+    bottom: 0.25rem;
+    font-size: 0.6rem;
+    color: #aaa;
+  }
+  /* Align user right (gray bubble), bot left (white bubble) */
+  .user {
+    align-self: flex-end;
+    background-color: #f8f8f8;
+  }
+  .bot {
+    align-self: flex-start;
+    background-color: #ffffff;
+    text-align: left;
+  }
+  
+  /* “Waiting for response...” hidden by default */
+  #loading {
+    display: none;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #888;
+    margin-top: 0.5rem;
+  }
+  
+  /* Footer pinned at bottom with a pill-shaped input area */
+  footer {
+    position: fixed;
+    bottom: 3rem; /* 3rem above bottom, so it's floating a bit */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 800px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #chat-form {
+    display: flex;
+    flex: 1;
+    background: #fff;
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 0.50rem 1rem;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  textarea {
+    flex: 1;
+    resize: none;
+    border: none;
+    outline: none;
+    border-radius: 999px;
+    padding: 0.7rem 1rem;
+    background: #f2f2f2;
+    font-size: 1rem;
+    line-height: 1;
+    overflow-y: hidden;
+    min-height: 2.6rem;
+    display: block; /* reset to default */
+    min-width: 0;
+  }
+  
+  
+  
+  
+  textarea::placeholder {
+    color: #aaa;
+  }
+  
+  /* Buttons (attach & send) */
+  button {
+    border: none;
+    background-color: #0078d7;
+    color: #fff;
+    border-radius: 999px;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #005fa3;
+  }
+  
+  /* Attach Image Button (default) */
+  #attachBtn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    font-size: 1.2rem;
+    padding: 0.3rem;
+    border-radius: 100%;
+  }
+  #attachBtn:hover {
+    color: #333;
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  .image-attached {
+    background-color: #baf7c6 !important;
+    color: #333 !important;
+    border-radius: 100%;
+    padding: 0.3rem;
+    transition: background-color 0.2s ease;
+  }
+  
+  /* The small preview container */
+  #preview-container {
+    width: 48px;
+    height: 48px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    display: none; /* hidden by default, toggled by JS */
+    position: relative; /* so the “×” is positioned within this box */
+    flex-shrink: 0;     /* don't shrink if space is tight */
+  }
+  
+  #preview-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  /* The “×” button for removing the image */
+  .remove-upload-btn {
+    position: absolute;
+    top: 2px;  /* place it inside the box */
+    right: 2px;
+    background: rgba(255,255,255,0.8);
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    font-size: 0.8rem;
+    width: 18px;
+    height: 18px;
+    line-height: 16px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+  }
+  
+  /* Utility: hide elements with .hidden */
+  .hidden {
+    display: none !important;
+  }
+  
+  
+  /* Modal background overlay (for large image) */
+  .modal {
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Modal content container */
+  .modal-content {
+    position: relative;
+    background-color: #222;
+    padding: 1rem;
+    border-radius: 8px;
+    max-width: 90%;
+    max-height: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  
+  /* The close button (the “×”) */
+  .close-btn {
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    align-self: flex-end;
+  }
+  
+  /* The large preview image inside the modal */
+  #modal-img {
+    display: block;
+    margin-top: 0.5rem;
+    max-width: 100%;
+    max-height: 80vh;
+    object-fit: contain;
+  }
+
+  .bot ul {
+    padding-left: 1.2rem;
+    margin: 0.5rem 0;
+    list-style-type: disc;
+  }
+  
+  .bot ul ul {
+    list-style-type: circle; /* nested lists */
+    margin-top: 0.3rem;
+  }
+  .bot li {
+    margin-bottom: 0.4rem;
+    text-align: left;
+  }
+
+  
+  
+  
