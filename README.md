@@ -202,7 +202,11 @@ az webapp log tail --name cloudbotweb --resource-group CloudBot
 ├── .gitignore
 └── .env
 ```
-
+### After the project, clean up the environment
+This will remove all the resources deployed to avoid costs after the project.
+```
+az group delete -n $ResourceGroup
+```
 ### Thanks for exploring CloudBot!
 
 Feel free to customize, scale, and share your AI-powered creations!
