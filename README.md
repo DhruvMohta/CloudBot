@@ -22,7 +22,6 @@ CloudBot is a **web-based chatbot** powered by **Google's Gemini API** (`google-
    - [Setting Environment Variables](#setting-environment-variables)
 5. [Troubleshooting](#troubleshooting)
 6. [Project Structure](#project-structure)
-7. [License](#license)
 
 ---
 
@@ -196,20 +195,6 @@ az webapp log tail --name cloudbotweb --resource-group CloudBot
 ├── .gitignore
 └── .env
 ```
-
----
-
-## License
-
-MIT License
-
-Copyright (c) 2025
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, subject to the conditions above.
-
----
 
 ### Thanks for exploring CloudBot!
 
