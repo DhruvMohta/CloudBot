@@ -1,58 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>CloudBot</title>
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link 
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap"
-    rel="stylesheet"
-  />
-
-  <!-- Link to your style.css -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Chat Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-
-  <!-- Optional: Marked.js for bold/italics in AI text -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
 </head>
 <body>
-  <!-- Container holding everything that scrolls -->
+  <!-- Floating title that scrolls away -->
+  <h1 class="main-title">AI Chat Assistant ✨</h1>
+  
   <div class="container">
-    <!-- Sparkle & Heading -->
-    <div class="hero">
-      <div class="icon">✦</div>
-      <h1>Ask our AI anything</h1>
+    <!-- Hero section removed -->
+    
+    <div id="chat-container">
+      <!-- Chat messages will appear here -->
     </div>
-
-    <!-- Chat messages -->
-    <div id="chat-container"></div>
-    <div id="loading" style="display:none;">Waiting for response...</div>
+    
+    <footer>
+      <form id="chat-form">
+        <button type="button" id="attachBtn" title="Attach an Image">🖼️</button>
+        <input type="file" id="fileInput" accept="image/*" style="display:none;" />
+        <div id="preview-container" class="hidden">
+          <img id="preview-img" alt="Preview" />
+          <span id="remove-upload" class="remove-upload-btn">&times;</span>
+        </div>
+        <textarea id="message" placeholder="Type your message..." rows="1"></textarea>
+        <button type="submit" id="sendBtn">↑</button>
+      </form>
+    </footer>
   </div>
 
   <!-- Image modal -->
-  <div id="image-modal" class="modal" style="display: none;">
+  <div id="image-modal" class="modal">
     <div class="modal-content">
       <span id="close-modal" class="close-btn">&times;</span>
-      <img id="modal-img" alt="Full image preview" />
+      <img id="modal-img" alt="Full image" />
     </div>
   </div>
 
-  <!-- Footer with input -->
-  <footer>
-    <form id="chat-form">
-      <button type="button" id="attachBtn" title="Attach an Image">🖼️</button>
-      <input type="file" id="fileInput" accept="image/*" style="display:none;" />
-      <div id="preview-container" class="hidden">
-        <img id="preview-img" alt="Preview" />
-        <span id="remove-upload" class="remove-upload-btn">&times;</span>
-      </div>
-      <textarea id="message" placeholder="Type your message..."></textarea>
-      <button type="submit" id="sendBtn">↑</button>
-    </form>
-  </footer>
-
   <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
 </body>
-
 </html>

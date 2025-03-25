@@ -19,6 +19,81 @@ const blurOverlay = document.getElementById('scroll-blur');
 // We'll store the selected image file here so it doesn't upload immediately:
 let attachedImageFile = null;
 
+// Add a clear conversation button to the UI
+document.addEventListener('DOMContentLoaded', function() {
+  // Check if this is a fresh page load (not a refresh)
+  if (!sessionStorage.getItem('chatInitialized')) {
+    // This is a fresh load, clear the server-side session and images
+    fetch('/clear', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Session and uploads cleared on page load');
+      // Add welcome message
+      addMessageBubble('Hello! I\'m your AI assistant. You can ask me any questions or upload an image for us to discuss.', 'bot');
+    })
+    .catch(error => {
+      console.error('Error clearing session:', error);
+    });
+    
+    // Set flag in session storage
+    sessionStorage.setItem('chatInitialized', 'true');
+  }
+  
+  // Add clear button to UI
+  const clearButton = document.createElement('button');
+  clearButton.id = 'clearBtn'; 
+  clearButton.className = 'clear-button';
+  clearButton.addEventListener('click', clearConversation);
+
+  const heroSection = document.querySelector('.hero');
+  if (heroSection) {
+    heroSection.appendChild(clearButton);
+  }
+
+  // Enable Enter key to send (Shift+Enter for new line)
+  messageInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      chatForm.dispatchEvent(new Event('submit'));
+    }
+  });
+  
+  // Auto-focus input on page load
+  messageInput.focus();
+});
+
+// Add scroll handling to modify the title appearance
+document.addEventListener('DOMContentLoaded', function() {
+  // Create and add the clear button directly to the document body
+  const clearButton = document.createElement('button');
+  clearButton.id = 'clearBtn';
+  clearButton.className = 'clear-button';
+  clearButton.addEventListener('click', clearConversation);
+  document.body.appendChild(clearButton);
+  
+  // Handle scroll behavior for the floating title
+  const chatContainer = document.getElementById('chat-container');
+  const mainTitle = document.querySelector('.main-title');
+  
+  chatContainer.addEventListener('scroll', function() {
+    if (chatContainer.scrollTop > 50) {
+      document.body.classList.add('scroll-triggered');
+    } else {
+      document.body.classList.remove('scroll-triggered');
+    }
+  });
+});
+
+// Reset session flag when page is unloaded
+window.addEventListener('unload', function() {
+  sessionStorage.removeItem('chatInitialized');
+});
+
 /********************************************************
  * 1) Handle "Attach Image" and show inline preview
  ********************************************************/
@@ -63,27 +138,34 @@ chatForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const userText = messageInput.value.trim();
 
+  // Exit if no text and no image
+  if (!userText && !attachedImageFile) return;
+  
+  // Save and clear input right away for better UX
+  messageInput.value = '';
+  autoResizeTextArea(messageInput);
+  
   // Convert attached image to base64 if present
   let base64Image = null;
   if (attachedImageFile) {
     base64Image = await fileToBase64(attachedImageFile);
-    // Add an image bubble in the main chat area (so the conversation shows the image)
+    // Add image bubble to chat
     addImageBubble(base64Image, 'user');
   }
 
-  // Show user text bubble if text is entered
+  // Show user message if text is entered
   if (userText) {
-    addMessage(userText, 'user');
+    addMessageBubble(userText, 'user');
   }
 
-  // If no text and no image, do nothing
-  if (!userText && !base64Image) return;
-
-  // Insert a temporary typing bubble
-  const typingBubble = addTypingBubble();
+  // Show typing indicator
+  const typingBubble = addTypingIndicator();
+  
+  // Scroll to bottom after adding user messages
+  scrollToBottom();
 
   try {
-    // Send text and (optional) image to your Flask endpoint
+    // Send request to backend
     const res = await fetch('/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -92,22 +174,24 @@ chatForm.addEventListener('submit', async (e) => {
         image_base64: base64Image
       })
     });
+    
+    if (!res.ok) {
+      throw new Error(`Server responded with status ${res.status}`);
+    }
+    
     const data = await res.json();
 
-    // Remove typing bubble
+    // Remove typing indicator and add response
     typingBubble.remove();
-
-    // Add bot reply bubble to the chat area
-    addMessage(data.Answer, 'bot');
+    addMessageBubble(data.Answer, 'bot');
   } catch (err) {
     typingBubble.remove();
-    addMessage("Error: Failed to fetch response.", 'bot');
+    addMessageBubble(`Sorry, there was an error: ${err.message}`, 'system');
     console.error(err);
   } finally {
-    // Reset inputs and preview so user can attach a new image next time
+    // Reset inputs for next message
     clearPreview();
-    messageInput.value = '';
-    autoResizeTextArea(messageInput);
+    scrollToBottom();
   }
 });
 
@@ -143,6 +227,11 @@ function addImageBubble(base64String, sender) {
   const bubble = document.createElement('div');
   bubble.classList.add('message', sender);
 
+  const timeStr = new Date().toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
   bubble.innerHTML = `
     <div class="message-text">
       <img 
@@ -151,6 +240,7 @@ function addImageBubble(base64String, sender) {
         style="max-width: 150px; border-radius: 8px; cursor: pointer;"
       />
     </div>
+    <div class="timestamp">${timeStr}</div>
   `;
   
   const img = bubble.querySelector('img');
@@ -191,6 +281,26 @@ function addTypingBubble() {
   return bubble;
 }
 
+function addTypingIndicator() {
+  const indicator = document.createElement('div');
+  indicator.classList.add('message', 'bot');
+  indicator.setAttribute('id', 'typing-bubble');
+  indicator.innerHTML = `
+    <div class="message-text">
+      <div class="typing-indicator">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  `;
+  
+  chatContainer.appendChild(indicator);
+  scrollToBottom();
+  
+  return indicator;
+}
+
 /********************************************************
  * 7) Auto-resize the textarea for multi-line input
  ********************************************************/
@@ -215,5 +325,67 @@ function fileToBase64(file) {
     reader.onerror = (err) => reject(err);
     reader.readAsDataURL(file);
   });
+}
+
+// Function to clear conversation
+function clearConversation() {
+  // First add a system message
+  addMessageBubble('Starting a new conversation...', 'system');
+  
+  // Call backend to clear session and uploaded images
+  fetch('/clear', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log('Conversation and uploads cleared:', data);
+    // Clear all chat messages except the last system message
+    const messages = chatContainer.querySelectorAll('.message:not(:last-child)');
+    messages.forEach(msg => msg.remove());
+    
+    // Add a welcome message
+    addMessageBubble('Hello! How can I help you today?', 'bot');
+  })
+  .catch(error => {
+    console.error('Error clearing conversation:', error);
+    addMessageBubble('Error clearing the conversation. Please try again.', 'system');
+  });
+}
+
+// Function to scroll chat to bottom
+function scrollToBottom() {
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+// Replace the undefined addMessageBubble function with this:
+function addMessageBubble(text, type) {
+  const bubble = document.createElement('div');
+  bubble.classList.add('message', type === 'user' ? 'user' : type === 'bot' ? 'bot' : 'system');
+
+  let parsed = text;
+  if (window.marked) {
+    marked.setOptions({
+      breaks: true,
+      gfm: true
+    });
+    parsed = marked.parse(text);
+  }
+
+  const timeStr = new Date().toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  bubble.innerHTML = `
+    <div class="message-text">${parsed}</div>
+    ${type !== 'system' ? `<div class="timestamp">${timeStr}</div>` : ''}
+  `;
+  chatContainer.appendChild(bubble);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+  
+  return bubble;
 }
 
