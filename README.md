@@ -22,6 +22,8 @@ CloudBot is a **web-based chatbot** powered by **Google's Gemini API** (`google-
    - [Setting Environment Variables](#setting-environment-variables)
 5. [Troubleshooting](#troubleshooting)
 6. [Project Structure](#project-structure)
+7. [UI Features](#ui-features)
+8. [Session Management](#session-management)
 
 ---
 
@@ -29,7 +31,7 @@ CloudBot is a **web-based chatbot** powered by **Google's Gemini API** (`google-
 
 ### Overview
 
-- CloudBot is a web-based chatbot that integrates with Google’s Gemini API (google-generativeai) to handle both text and image queries. 
+- CloudBot is a web-based chatbot that integrates with Google's Gemini API (google-generativeai) to handle both text and image queries. 
 - This project was created to demonstrate:
     - How to build a Flask-based chatbot that calls an advanced AI model (Gemini).
     - How to containerize an app with Docker.
@@ -46,6 +48,10 @@ https://cloudbotweb.azurewebsites.net
 - **Dockerized Application**: Easy build and deployment.
 - **Public Web Access**: Hosted publicly via Azure Web App.
 - **Responsive UI**: Clean, interactive, and easy to use.
+- **Session Management**: Maintains chat history between page refreshes.
+- **Conversation History**: Clear conversation feature with a single click.
+- **Image Upload & Preview**: Upload, preview and remove images before sending.
+- **Markdown Support**: Beautifully formatted responses with Markdown rendering.
 
 ---
 
